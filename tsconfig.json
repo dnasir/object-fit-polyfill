@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "none",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "outDir": "dist/",
+        "sourceMap": false
+    },
+    "filesGlob": [
+        "**/*.ts",
+        "**/*.tsx",
+        "!node_modules/**"
+    ]
+}

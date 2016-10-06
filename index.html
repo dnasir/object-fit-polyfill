@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>CSS object-fit polyfill</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .fill {
+            object-fit: fill;
+        }
+
+        .contain {
+            object-fit: contain;
+        }
+
+        .cover {
+            object-fit: cover;
+        }
+
+        .none {
+            object-fit: none;
+        }
+
+        .scale-down {
+            object-fit: scale-down;
+        }
+
+        img,
+        video {
+            width: 400px;
+            height: 300px;
+        }
+
+        img.narrow,
+        video.narrow {
+            width: 300px;
+            height: 400px;
+        }
+
+        .video-wrapper {
+            display: inline-block;
+            width: 400px;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .video-wrapper.narrow {
+            width: 300px;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>object-fit: fill</h2>
+    <div>
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="fill">
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="narrow fill">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="fill">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="narrow fill">
+    </div>
+    <div>
+        <div class="video-wrapper">
+            <video controls class="fill">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-wrapper narrow">
+            <video controls class="narrow fill">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <h2>object-fit: contain</h2>
+    <div>
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="contain">
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="narrow contain">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="contain">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="narrow contain">
+    </div>
+    <div>
+        <div class="video-wrapper">
+            <video controls class="contain">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-wrapper narrow">
+            <video controls class="narrow contain">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <h2>object-fit: cover</h2>
+    <div>
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="cover">
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="narrow cover">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="cover">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="narrow cover">
+    </div>
+    <div>
+        <div class="video-wrapper">
+            <video controls class="cover">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-wrapper narrow">
+            <video controls class="narrow cover">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <h2>object-fit: none</h2>
+    <div>
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="none">
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="narrow none">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="none">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="narrow none">
+    </div>
+    <div>
+        <div class="video-wrapper">
+            <video controls class="none">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-wrapper narrow">
+            <video controls class="narrow none">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <h2>object-fit: scale-down</h2>
+    <div>
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="scale-down">
+        <img src="https://s-media-cache-ak0.pinimg.com/originals/3d/38/b1/3d38b18a2f6f3780ea39fffc9e4c0679.jpg" alt="" class="narrow scale-down">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="scale-down">
+        <img src="http://img.new.livestream.com/events/00000000002d678c/8bad8943-802f-474c-a9bb-b26432fd0170_640x924.jpg" alt=""
+            class="narrow scale-down">
+    </div>
+    <div>
+        <div class="video-wrapper">
+            <video controls class="scale-down">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-wrapper narrow">
+            <video controls class="narrow scale-down">
+                <source src="test-video.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <script>
+        window.objectFitPolyfillOptions = {
+            responsive: true,
+            elements: [
+                {
+                    selector: '.fill',
+                    objectFitType: 'fill'
+                },
+                {
+                    selector: '.contain',
+                    objectFitType: 'contain'
+                },
+                {
+                    selector: '.cover',
+                    objectFitType: 'cover'
+                },
+                {
+                    selector: '.none',
+                    objectFitType: 'none'
+                },
+                {
+                    selector: '.scale-down',
+                    objectFitType: 'scale-down'
+                }
+            ]
+        };
+    </script>
+    <script src="dist/object-fit-polyfill.js"></script>
+</body>
+
+</html>
