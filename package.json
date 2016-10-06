@@ -1,11 +1,11 @@
 {
   "name": "object-fit-polyfill",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "dist/object-fit-polyfill.js",
   "scripts": {
     "build": "tsc -p ./",
-    "tslint": "tslint -c tslint.json 'src/**/*.ts'"
+    "tslint": "tslint -c tslint.json src/**/*.ts"
   },
   "author": "",
   "license": "ISC",

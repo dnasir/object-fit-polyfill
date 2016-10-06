@@ -1,15 +1,8 @@
-/**
- * Object-fit Polyfill
- * 
- * 
- */
-
-
 interface Window {
     objectFitPolyfillOptions?: CssObjectFitPolyfill.ObjectFitOptions;
 }
 
-module CssObjectFitPolyfill {
+namespace CssObjectFitPolyfill {
 
     export interface ObjectFitOptions {
         responsive?: boolean;
@@ -32,10 +25,13 @@ module CssObjectFitPolyfill {
             responsive: false,
             objectFitType: 'auto'
         };
+        private tagName: string;
 
         constructor(private element: HTMLMediaElement, opts?: ObjectFitElementOptions) {
+            this.tagName = this.element.tagName.toLowerCase();
+
             // only process images and videos
-            if (this.element.tagName.toLowerCase() !== 'img' && this.element.tagName.toLowerCase() !== 'video') {
+            if (this.tagName !== 'img' && this.tagName !== 'video') {
                 return;
             }
 
@@ -56,27 +52,22 @@ module CssObjectFitPolyfill {
             this.container.appendChild(this.element);
 
             var elementStyle = window.getComputedStyle(this.element, null);
-            this.container.style.position = elementStyle.position;
-            this.container.style.display = elementStyle.display === 'block' ? 'block' : 'inline-block';
-            this.container.style.verticalAlign = elementStyle.verticalAlign;
-            this.container.style.overflow = 'hidden';
+            for (let prop in elementStyle) {
+                if (prop.match(/(backgroundColor|backgroundImage|borderColor|borderStyle|borderWidth|bottom|fontSize|lineHeight|height|left|opacity|margin|position|right|top|visibility|width|verticalAlign|position)/)) {
+                    this.container.style[prop] = elementStyle[prop];
+                }
+            }
 
-            let elementSize = this.element.getBoundingClientRect();
-            this.container.style.width = `${Number(elementSize.width)}px`;
-            this.container.style.height = `${Number(elementSize.height)}px`;
+            this.container.style.display = elementStyle.display === 'block' ? 'block' : 'inline-block';
+            this.container.style.overflow = 'hidden';
 
             this.element.style.position = 'relative';
 
-            if (this.element.tagName.toLowerCase() === 'video') {
-                // for video files that are already loaded (maybe via cache)
-                if (this.element.readyState > 3) {
+            if (this.tagName === 'video') {
+                // wait til video is available otherwise we'll get the wrong sizes
+                this.element.oncanplay = () => {
                     this.refresh();
-                } else {
-                    // wait til video is available otherwise we'll get the wrong sizes
-                    this.element.oncanplay = () => {
-                        this.refresh();
-                    };
-                }
+                };
             } else {
                 this.refresh();
             }
@@ -88,7 +79,7 @@ module CssObjectFitPolyfill {
                     resizeTimeout = setTimeout(() => {
                         this.refresh();
                     }, 100);
-                }
+                };
             }
         }
 
@@ -98,91 +89,62 @@ module CssObjectFitPolyfill {
                 return;
             }
 
-            var containerSize = this.container.getBoundingClientRect();
-
-            this.element.style.width = 'auto';
-            this.element.style.height = 'auto';
-            var elementSize = this.element.getBoundingClientRect();
+            this.element.style.width = this.element.style.height = 'auto';
+            var elementSizeRatio = this.element.offsetWidth / this.element.offsetHeight;
 
             switch (objectFitType) {
                 case 'fill':
-                    if (this.element.tagName.toLowerCase() === 'video') {
-                        var elementSizeRatio = elementSize.width / elementSize.height;
-                        if (elementSizeRatio > 1) { // wide element
-                            this.element.style.height = `${Number(containerSize.height)}px`;
-                        } else { // tall element
-                            this.element.style.width = `${Number(containerSize.width)}px`;
-                        }
-
-                        var sx = containerSize.width / this.element.getBoundingClientRect().width;
-                        var sy = containerSize.height / this.element.getBoundingClientRect().height;
+                    if (this.tagName === 'img') {
+                        this.element.style.width = `${this.container.offsetWidth}px`;
+                        this.element.style.height = `${this.container.offsetHeight}px`;
+                    } else {
+                        var sx = this.container.offsetWidth / this.element.offsetWidth;
+                        var sy = this.container.offsetHeight / this.element.offsetHeight;
 
                         // TODO: Emulate fill by transforming the element
-                        //this.element.style.transform = `scale3d(${sx}, ${sy}, 1)`;
-                    } else {
-                        this.element.style.width = `${Number(containerSize.width)}px`;
-                        this.element.style.height = `${Number(containerSize.height)}px`;
+                        this.element.style[`${typeof this.element.style['transform-origin'] !== 'undefined' ? 'transform-origin' : '-ms-transform-origin'}`] = '0% 0%';
+                        this.element.style[`${typeof this.element.style['transform'] !== 'undefined' ? 'transform' : '-ms-transform'}`] = `scale(${sx},${sy})`;
                     }
                     break;
 
                 case 'contain':
                 case 'scale-down':
-                    var elementSizeRatio = elementSize.width / elementSize.height;
-
                     if (elementSizeRatio > 1) { // wide element
-                        this.element.style.width = `${Number(containerSize.width)}px`;
+                        this.element.style.width = `${this.container.offsetWidth}px`;
                         this.element.style.top = '50%';
-                        this.element.style.marginTop = `-${Number(this.element.getBoundingClientRect().height / 2)}px`;
+                        this.element.style.marginTop = `-${this.element.offsetHeight / 2}px`;
                     } else { // tall element
-                        this.element.style.height = `${Number(containerSize.height)}px`;
+                        this.element.style.height = `${this.container.offsetHeight}px`;
                         this.element.style.left = '50%';
-                        this.element.style.marginLeft = `-${Number(this.element.getBoundingClientRect().width / 2)}px`;
+                        this.element.style.marginLeft = `-${this.element.offsetWidth / 2}px`;
                     }
                     break;
 
                 case 'cover':
-                    var containerSizeRatio = containerSize.width / containerSize.height;
-                    var elementSizeRatio = elementSize.width / elementSize.height;
-
-                    if (containerSizeRatio > 1) { // wide container
-                        if (elementSizeRatio > 1) { // wide element
-                            this.element.style.height = `${Number(this.container.getBoundingClientRect().height)}px`;
-                            this.element.style.left = '50%';
-                            this.element.style.marginLeft = `-${Number(this.element.getBoundingClientRect().width / 2)}px`;
-                        } else { // tall element
-                            this.element.style.width = `${Number(this.container.getBoundingClientRect().width)}px`;
-                            this.element.style.top = '50%';
-                            this.element.style.marginTop = `-${Number(this.element.getBoundingClientRect().height / 2)}px`;
-                        }
-                    } else { // tall container
-                        if (elementSizeRatio > 1) { // wide element
-                            this.element.style.height = `${Number(this.container.getBoundingClientRect().height)}px`;
-                            this.element.style.left = '50%';
-                            this.element.style.marginLeft = `-${Number(this.element.getBoundingClientRect().width / 2)}px`;
-                        } else { // tall element
-                            this.element.style.width = `${Number(this.container.getBoundingClientRect().width)}px`;
-                            this.element.style.top = '50%';
-                            this.element.style.marginTop = `-${Number(this.element.getBoundingClientRect().height / 2)}px`;
-                        }
+                    if (elementSizeRatio > 1) { // wide element
+                        this.element.style.height = `${this.container.offsetHeight}px`;
+                        this.element.style.left = '50%';
+                        this.element.style.marginLeft = `-${this.element.offsetWidth / 2}px`;
+                    } else { // tall element
+                        this.element.style.width = `${this.container.offsetWidth}px`;
+                        this.element.style.top = '50%';
+                        this.element.style.marginTop = `-${this.element.offsetHeight / 2}px`;
                     }
                     break;
 
                 // object-fit: none
                 default:
                     this.element.style.left = '50%';
-                    this.element.style.marginLeft = `-${Number(this.element.getBoundingClientRect().width / 2)}px`;
+                    this.element.style.marginLeft = `-${this.element.offsetWidth / 2}px`;
                     this.element.style.top = '50%';
-                    this.element.style.marginTop = `-${Number(this.element.getBoundingClientRect().height / 2)}px`;
+                    this.element.style.marginTop = `-${this.element.offsetHeight / 2}px`;
                     break;
             }
         }
     }
 
-    window.addEventListener('load', function () {
-        if ('object-fit' in document.body.style) {
-            return;
-        }
-
+    // check if object-fit is supported
+    if (!('object-fit' in document.body.style)) {
         var options = window.objectFitPolyfillOptions || {};
 
         if (typeof options.elements !== 'undefined') {
@@ -205,10 +167,10 @@ module CssObjectFitPolyfill {
             let len = elements.length;
             for (let i = 0; i < len; i++) {
                 var element = elements[i] as HTMLMediaElement;
-                if (typeof window.getComputedStyle(element, null).getPropertyValue('object-fit') !== 'undefined') {
+                if (typeof window.getComputedStyle(element, null)['object-fit'] !== 'undefined') {
                     element['objectFitPolyfill'] = new ObjectFitElement(element, options);
                 }
             }
         }
-    }, false);
+    }
 }

@@ -8,7 +8,8 @@ var CssObjectFitPolyfill;
                 responsive: false,
                 objectFitType: 'auto'
             };
-            if (this.element.tagName.toLowerCase() !== 'img' && this.element.tagName.toLowerCase() !== 'video') {
+            this.tagName = this.element.tagName.toLowerCase();
+            if (this.tagName !== 'img' && this.tagName !== 'video') {
                 return;
             }
             if (typeof opts !== 'undefined') {
@@ -20,23 +21,18 @@ var CssObjectFitPolyfill;
             this.element.parentNode.replaceChild(this.container, this.element);
             this.container.appendChild(this.element);
             var elementStyle = window.getComputedStyle(this.element, null);
-            this.container.style.position = elementStyle.position;
+            for (var prop in elementStyle) {
+                if (prop.match(/(backgroundColor|backgroundImage|borderColor|borderStyle|borderWidth|bottom|fontSize|lineHeight|height|left|opacity|margin|position|right|top|visibility|width|verticalAlign|position)/)) {
+                    this.container.style[prop] = elementStyle[prop];
+                }
+            }
             this.container.style.display = elementStyle.display === 'block' ? 'block' : 'inline-block';
-            this.container.style.verticalAlign = elementStyle.verticalAlign;
             this.container.style.overflow = 'hidden';
-            var elementSize = this.element.getBoundingClientRect();
-            this.container.style.width = Number(elementSize.width) + "px";
-            this.container.style.height = Number(elementSize.height) + "px";
             this.element.style.position = 'relative';
-            if (this.element.tagName.toLowerCase() === 'video') {
-                if (this.element.readyState > 3) {
-                    this.refresh();
-                }
-                else {
-                    this.element.oncanplay = function () {
-                        _this.refresh();
-                    };
-                }
+            if (this.tagName === 'video') {
+                this.element.oncanplay = function () {
+                    _this.refresh();
+                };
             }
             else {
                 this.refresh();
@@ -56,85 +52,58 @@ var CssObjectFitPolyfill;
             if (typeof objectFitType === 'undefined') {
                 return;
             }
-            var containerSize = this.container.getBoundingClientRect();
-            this.element.style.width = 'auto';
-            this.element.style.height = 'auto';
-            var elementSize = this.element.getBoundingClientRect();
+            this.element.style.width = this.element.style.height = 'auto';
+            var elementSizeRatio = this.element.offsetWidth / this.element.offsetHeight;
             switch (objectFitType) {
                 case 'fill':
-                    if (this.element.tagName.toLowerCase() === 'video') {
-                        var elementSizeRatio = elementSize.width / elementSize.height;
-                        if (elementSizeRatio > 1) {
-                            this.element.style.height = Number(containerSize.height) + "px";
-                        }
-                        else {
-                            this.element.style.width = Number(containerSize.width) + "px";
-                        }
-                        var sx = containerSize.width / this.element.getBoundingClientRect().width;
-                        var sy = containerSize.height / this.element.getBoundingClientRect().height;
+                    if (this.tagName === 'img') {
+                        this.element.style.width = this.container.offsetWidth + "px";
+                        this.element.style.height = this.container.offsetHeight + "px";
                     }
                     else {
-                        this.element.style.width = Number(containerSize.width) + "px";
-                        this.element.style.height = Number(containerSize.height) + "px";
+                        var sx = this.container.offsetWidth / this.element.offsetWidth;
+                        var sy = this.container.offsetHeight / this.element.offsetHeight;
+                        this.element.style[("" + (typeof this.element.style['transform-origin'] !== 'undefined' ? 'transform-origin' : '-ms-transform-origin'))] = '0% 0%';
+                        this.element.style[("" + (typeof this.element.style['transform'] !== 'undefined' ? 'transform' : '-ms-transform'))] = "scale(" + sx + "," + sy + ")";
                     }
                     break;
                 case 'contain':
                 case 'scale-down':
-                    var elementSizeRatio = elementSize.width / elementSize.height;
                     if (elementSizeRatio > 1) {
-                        this.element.style.width = Number(containerSize.width) + "px";
+                        this.element.style.width = this.container.offsetWidth + "px";
                         this.element.style.top = '50%';
-                        this.element.style.marginTop = "-" + Number(this.element.getBoundingClientRect().height / 2) + "px";
+                        this.element.style.marginTop = "-" + this.element.offsetHeight / 2 + "px";
                     }
                     else {
-                        this.element.style.height = Number(containerSize.height) + "px";
+                        this.element.style.height = this.container.offsetHeight + "px";
                         this.element.style.left = '50%';
-                        this.element.style.marginLeft = "-" + Number(this.element.getBoundingClientRect().width / 2) + "px";
+                        this.element.style.marginLeft = "-" + this.element.offsetWidth / 2 + "px";
                     }
                     break;
                 case 'cover':
-                    var containerSizeRatio = containerSize.width / containerSize.height;
-                    var elementSizeRatio = elementSize.width / elementSize.height;
-                    if (containerSizeRatio > 1) {
-                        if (elementSizeRatio > 1) {
-                            this.element.style.height = Number(this.container.getBoundingClientRect().height) + "px";
-                            this.element.style.left = '50%';
-                            this.element.style.marginLeft = "-" + Number(this.element.getBoundingClientRect().width / 2) + "px";
-                        }
-                        else {
-                            this.element.style.width = Number(this.container.getBoundingClientRect().width) + "px";
-                            this.element.style.top = '50%';
-                            this.element.style.marginTop = "-" + Number(this.element.getBoundingClientRect().height / 2) + "px";
-                        }
+                    if (elementSizeRatio > 1) {
+                        this.element.style.height = this.container.offsetHeight + "px";
+                        this.element.style.left = '50%';
+                        this.element.style.marginLeft = "-" + this.element.offsetWidth / 2 + "px";
                     }
                     else {
-                        if (elementSizeRatio > 1) {
-                            this.element.style.height = Number(this.container.getBoundingClientRect().height) + "px";
-                            this.element.style.left = '50%';
-                            this.element.style.marginLeft = "-" + Number(this.element.getBoundingClientRect().width / 2) + "px";
-                        }
-                        else {
-                            this.element.style.width = Number(this.container.getBoundingClientRect().width) + "px";
-                            this.element.style.top = '50%';
-                            this.element.style.marginTop = "-" + Number(this.element.getBoundingClientRect().height / 2) + "px";
-                        }
+                        this.element.style.width = this.container.offsetWidth + "px";
+                        this.element.style.top = '50%';
+                        this.element.style.marginTop = "-" + this.element.offsetHeight / 2 + "px";
                     }
                     break;
                 default:
                     this.element.style.left = '50%';
-                    this.element.style.marginLeft = "-" + Number(this.element.getBoundingClientRect().width / 2) + "px";
+                    this.element.style.marginLeft = "-" + this.element.offsetWidth / 2 + "px";
                     this.element.style.top = '50%';
-                    this.element.style.marginTop = "-" + Number(this.element.getBoundingClientRect().height / 2) + "px";
+                    this.element.style.marginTop = "-" + this.element.offsetHeight / 2 + "px";
                     break;
             }
         };
         return ObjectFitElement;
     }());
     CssObjectFitPolyfill.ObjectFitElement = ObjectFitElement;
-    window.addEventListener('load', function () {
-        if ('object-fit' in document.body.style) {
-            return;
-        }
+    if (!('object-fit' in document.body.style)) {
         var options = window.objectFitPolyfillOptions || {};
         if (typeof options.elements !== 'undefined') {
             var len = options.elements.length;
@@ -156,10 +125,10 @@ var CssObjectFitPolyfill;
             var len = elements.length;
             for (var i = 0; i < len; i++) {
                 var element = elements[i];
-                if (typeof window.getComputedStyle(element, null).getPropertyValue('object-fit') !== 'undefined') {
+                if (typeof window.getComputedStyle(element, null)['object-fit'] !== 'undefined') {
                     element['objectFitPolyfill'] = new ObjectFitElement(element, options);
                 }
             }
         }
-    }, false);
+    }
 })(CssObjectFitPolyfill || (CssObjectFitPolyfill = {}));
