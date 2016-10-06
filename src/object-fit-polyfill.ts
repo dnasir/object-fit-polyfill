@@ -63,15 +63,6 @@ namespace CssObjectFitPolyfill {
 
             this.element.style.position = 'relative';
 
-            if (this.tagName === 'video') {
-                // wait til video is available otherwise we'll get the wrong sizes
-                this.element.oncanplay = () => {
-                    this.refresh();
-                };
-            } else {
-                this.refresh();
-            }
-
             if (this.options.responsive) {
                 var resizeTimeout: number;
                 window.onresize = () => {
@@ -81,6 +72,10 @@ namespace CssObjectFitPolyfill {
                     }, 100);
                 };
             }
+
+            window.addEventListener('load', () => {
+                this.refresh();
+            });
         }
 
         refresh(): void {

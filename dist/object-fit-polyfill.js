@@ -29,14 +29,6 @@ var CssObjectFitPolyfill;
             this.container.style.display = elementStyle.display === 'block' ? 'block' : 'inline-block';
             this.container.style.overflow = 'hidden';
             this.element.style.position = 'relative';
-            if (this.tagName === 'video') {
-                this.element.oncanplay = function () {
-                    _this.refresh();
-                };
-            }
-            else {
-                this.refresh();
-            }
             if (this.options.responsive) {
                 var resizeTimeout;
                 window.onresize = function () {
@@ -46,6 +38,9 @@ var CssObjectFitPolyfill;
                     }, 100);
                 };
             }
+            window.addEventListener('load', function () {
+                _this.refresh();
+            });
         }
         ObjectFitElement.prototype.refresh = function () {
             var objectFitType = this.options.objectFitType !== 'auto' ? this.options.objectFitType : window.getComputedStyle(this.element, null)['object-fit'];
