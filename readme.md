@@ -26,33 +26,30 @@ Picture is not supported on the account IE doesn't support it anyway.
 
 Specifies whether the polyfill should respond to page resize.
 
-## Applying polyfill options
+    window.objectFitPolyfillOptions = {
+        responsive: true
+    }
 
-You can apply global options for the polyfill like so:
+### ``altPropName`` (default: ``font-family``)
 
-```
-window.objectFitPolyfillOptions = {
-    responsive: true
-}
-```
+Since MS Edge ignores all "invalid" properties that are not members of the [``CSSStyleDeclaration``](https://developer.mozilla.org/en/docs/Web/API/CSSStyleDeclaration) object,
+it will therefore not return the value for ``object-fit`` like IE does. This may be a bug in IE - I don't know.
 
-## Additional setup for MS Edge
+So, in order for us to circumvent this problem, we can inject the ``object-fit`` property as the value for a valid property.
 
-Since MS Edge ignores all "invalid" properties that are not members of the [``CSSStyleDeclaration``](https://developer.mozilla.org/en/docs/Web/API/CSSStyleDeclaration) object, it will therefore not return
-the value for ``object-fit`` like IE does. This may be a bug in IE - I don't know. So we need to force apply the polyfill to our elements.
+    .fill {
+        object-fit: fill;
+        font-family: "object-fit: fill;";
+    }
 
-```
-window.objectFitPolyfillOptions = {
-    elements: [
-        {
-            selector: '.fill',      // selector to use in document.querySelectorAll()
-            objectFitType: 'fill'   // object-fit type to use
-        }
-    ]
-}
-```
+If you'd like to use a different CSS property for this, set the ``altPropName`` options value to the CSS property name you'd like to use.
+
+    window.objectFitPolyfillOptions = {
+        altPropName: 'color'
+    }
 
 # Known issues
 
 - Video controls are sometimes partially visible or not visible at all.
-- Auto-polyfill doesn't work on Edge due to ``window.getComputedStyle()`` not returning values for "invalid" properties.
+- Videos may not show up correctly on IE due to the transform style being applied.
+- Auto-polyfill doesn't work on Edge without additional configuration due to ``window.getComputedStyle()`` not returning values for "invalid" properties.
