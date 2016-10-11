@@ -7,7 +7,7 @@
     "build": "tsc -p ./",
     "tslint": "tslint -c tslint.json src/**/*.ts"
   },
-  "author": "",
+  "author": "Dzulqarnain Nasir <dzul1983@gmail.com>",
   "license": "ISC",
   "devDependencies": {
     "tslint": "^3.15.1",

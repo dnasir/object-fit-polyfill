@@ -1,21 +1,34 @@
-var CssObjectFitPolyfill;
-(function (CssObjectFitPolyfill) {
+var ObjectFitPolyfill;
+(function (ObjectFitPolyfill) {
+    function extend() {
+        var objs = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            objs[_i - 0] = arguments[_i];
+        }
+        for (var i = 1; i < objs.length; i++) {
+            for (var key in objs[i]) {
+                if (objs[i].hasOwnProperty(key)) {
+                    objs[0][key] = objs[i][key];
+                }
+            }
+        }
+        return objs[0];
+    }
     var ObjectFitElement = (function () {
         function ObjectFitElement(element, opts) {
             var _this = this;
             this.element = element;
             this.options = {
+                altPropName: 'font-family',
                 responsive: false,
-                objectFitType: 'auto'
+                objectFitType: 'none'
             };
             this.tagName = this.element.tagName.toLowerCase();
             if (this.tagName !== 'img' && this.tagName !== 'video') {
                 return;
             }
             if (typeof opts !== 'undefined') {
-                for (var opt in opts) {
-                    this.options[opt] = opts[opt];
-                }
+                this.options = extend(this.options, opts);
             }
             this.container = document.createElement('span');
             this.element.parentNode.replaceChild(this.container, this.element);
@@ -30,10 +43,10 @@ var CssObjectFitPolyfill;
             this.container.style.overflow = 'hidden';
             this.element.style.position = 'relative';
             if (this.options.responsive) {
-                var resizeTimeout;
+                var resizeTimeout_1;
                 window.onresize = function () {
-                    clearTimeout(resizeTimeout);
-                    resizeTimeout = setTimeout(function () {
+                    clearTimeout(resizeTimeout_1);
+                    resizeTimeout_1 = setTimeout(function () {
                         _this.refresh();
                     }, 100);
                 };
@@ -43,13 +56,9 @@ var CssObjectFitPolyfill;
             });
         }
         ObjectFitElement.prototype.refresh = function () {
-            var objectFitType = this.options.objectFitType !== 'auto' ? this.options.objectFitType : window.getComputedStyle(this.element, null)['object-fit'];
-            if (typeof objectFitType === 'undefined') {
-                return;
-            }
             this.element.style.width = this.element.style.height = 'auto';
             var elementSizeRatio = this.element.offsetWidth / this.element.offsetHeight;
-            switch (objectFitType) {
+            switch (this.options.objectFitType) {
                 case 'fill':
                     if (this.tagName === 'img') {
                         this.element.style.width = this.container.offsetWidth + "px";
@@ -97,33 +106,34 @@ var CssObjectFitPolyfill;
         };
         return ObjectFitElement;
     }());
-    CssObjectFitPolyfill.ObjectFitElement = ObjectFitElement;
+    ObjectFitPolyfill.ObjectFitElement = ObjectFitElement;
+    var defaultObjectFitOptions = {
+        altPropName: 'font-family',
+        responsive: false
+    };
     if (!('object-fit' in document.body.style)) {
-        var options = window.objectFitPolyfillOptions || {};
-        if (typeof options.elements !== 'undefined') {
-            var len = options.elements.length;
-            for (var i = 0; i < len; i++) {
-                var elements = document.querySelectorAll(options.elements[i].selector);
-                var e_len = elements.length;
-                for (var j = 0; j < e_len; j++) {
-                    var element_1 = elements[j];
-                    var objectFitElementOptions = {
-                        objectFitType: options.elements[i].objectFitType,
-                        responsive: options.responsive
-                    };
-                    element_1['objectFitPolyfill'] = new ObjectFitElement(element_1, objectFitElementOptions);
-                }
+        var options = extend(defaultObjectFitOptions, window.objectFitPolyfillOptions);
+        var elements = document.querySelectorAll('img,video');
+        var len = elements.length;
+        for (var i = 0; i < len; i++) {
+            var element = elements[i];
+            var polyfillType = window.getComputedStyle(element, null)['object-fit'];
+            if (typeof polyfillType !== 'undefined') {
+                element['objectFitPolyfill'] = new ObjectFitElement(element, {
+                    responsive: options.responsive,
+                    objectFitType: polyfillType
+                });
             }
-        }
-        else {
-            var elements = document.querySelectorAll('img,video');
-            var len = elements.length;
-            for (var i = 0; i < len; i++) {
-                var element = elements[i];
-                if (typeof window.getComputedStyle(element, null)['object-fit'] !== 'undefined') {
-                    element['objectFitPolyfill'] = new ObjectFitElement(element, options);
+            else {
+                var valueFromAltProp = window.getComputedStyle(element, null)[options.altPropName];
+                var typeFromAltProp = valueFromAltProp.match(/object-fit\s*:\s*(.+)\s*;/);
+                if (typeFromAltProp !== null) {
+                    element['objectFitPolyfill'] = new ObjectFitElement(element, {
+                        responsive: options.responsive,
+                        objectFitType: typeFromAltProp[1]
+                    });
                 }
             }
         }
     }
-})(CssObjectFitPolyfill || (CssObjectFitPolyfill = {}));
+})(ObjectFitPolyfill || (ObjectFitPolyfill = {}));

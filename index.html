@@ -8,22 +8,27 @@
     <style>
         .fill {
             object-fit: fill;
+            font-family: "object-fit: fill;";
         }
 
         .contain {
             object-fit: contain;
+            font-family: "object-fit: contain;";
         }
 
         .cover {
             object-fit: cover;
+            font-family: "object-fit: cover;";
         }
 
         .none {
             object-fit: none;
+            font-family: "object-fit: none;";
         }
 
         .scale-down {
             object-fit: scale-down;
+            font-family: "object-fit: scale-down;";
         }
 
         img,
@@ -165,29 +170,7 @@
 
     <script>
         window.objectFitPolyfillOptions = {
-            responsive: true,
-            elements: [
-                {
-                    selector: '.fill',
-                    objectFitType: 'fill'
-                },
-                {
-                    selector: '.contain',
-                    objectFitType: 'contain'
-                },
-                {
-                    selector: '.cover',
-                    objectFitType: 'cover'
-                },
-                {
-                    selector: '.none',
-                    objectFitType: 'none'
-                },
-                {
-                    selector: '.scale-down',
-                    objectFitType: 'scale-down'
-                }
-            ]
+            responsive: true
         };
     </script>
     <script src="dist/object-fit-polyfill.js"></script>
