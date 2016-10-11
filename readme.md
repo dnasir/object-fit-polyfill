@@ -26,9 +26,11 @@ Picture is not supported on the account IE doesn't support it anyway.
 
 Specifies whether the polyfill should respond to page resize.
 
-    window.objectFitPolyfillOptions = {
-        responsive: true
-    }
+```js
+window.objectFitPolyfillOptions = {
+    responsive: true
+}
+```
 
 ### ``altPropName`` (default: ``font-family``)
 
@@ -37,16 +39,20 @@ it will therefore not return the value for ``object-fit`` like IE does. This may
 
 So, in order for us to circumvent this problem, we can inject the ``object-fit`` property as the value for a valid property.
 
-    .fill {
-        object-fit: fill;
-        font-family: "object-fit: fill;";
-    }
+```css
+.fill {
+    object-fit: fill;
+    font-family: "object-fit: fill;";
+}
+```
 
 If you'd like to use a different CSS property for this, set the ``altPropName`` options value to the CSS property name you'd like to use.
 
-    window.objectFitPolyfillOptions = {
-        altPropName: 'color'
-    }
+```js
+window.objectFitPolyfillOptions = {
+    altPropName: 'color'
+}
+```
 
 # Known issues
 
